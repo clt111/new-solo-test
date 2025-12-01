@@ -21,7 +21,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Setup pnpm
-        if: hashFiles('pnpm-lock.yaml') != ''
+        if: hashFiles('**/pnpm-lock.yaml') != ''
         uses: pnpm/action-setup@v4
         with:
           version: latest
