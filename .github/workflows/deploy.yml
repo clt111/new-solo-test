@@ -1,0 +1,47 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compute BASE_PATH for GitHub Pages
+        run: |
+          REPO_NAME="${{ github.event.repository.name }}"
+          if echo "$REPO_NAME" | grep -qiE "\.github\.io$"; then
+            echo "BASE_PATH=/" >> $GITHUB_ENV
+          else
+            echo "BASE_PATH=/$REPO_NAME/" >> $GITHUB_ENV
+          fi
+
+      - name: Build (with BASE_PATH)
+        run: npm run build
+        env:
+          BASE_PATH: ${{ env.BASE_PATH }}
+
+      - name: SPA 404 fallback
+        run: cp dist/index.html dist/404.html
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true
