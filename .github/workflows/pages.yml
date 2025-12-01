@@ -24,23 +24,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: latest
+          cache: 'npm'
 
       - name: Enable Corepack
         run: corepack enable
 
       - name: Install dependencies
         run: |
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm i --frozen-lockfile
-          elif [ -f yarn.lock ]; then
-            yarn install --frozen-lockfile
-          elif [ -f package-lock.json ]; then
+          if [ -f package-lock.json ]; then
             npm ci
           else
             npm install
@@ -59,14 +50,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm run build
-          elif [ -f yarn.lock ]; then
-            yarn build
-          else
-            npm run build
-          fi
+        run: npm run build
         env:
           BASE_PATH: ${{ env.BASE_PATH }}
 
